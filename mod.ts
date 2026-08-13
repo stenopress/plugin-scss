@@ -1,6 +1,9 @@
 /**
  * This module exports a Steno plugin that compiles Sass/SCSS entry files
- * into a site's public directory before the build copies it to staging.
+ * into a site's public directory before the build copies it to staging, plus
+ * a standalone {@linkcode compileFromUrls} helper for themes that need to
+ * compile their own bundled Sass into a CSS string at theme-load time (see
+ * "Why a plugin, not a build-in feature" in the README).
  *
  * @module
  */
@@ -8,6 +11,44 @@
 import type { SiteConfig, StenoPlugin } from "@steno/steno";
 import { dirname, join, relative } from "@std/path";
 import * as sass from "sass";
+
+/** Options for {@linkcode compileFromUrls}. */
+export interface CompileFromUrlsOptions {
+  /** Sass output style. Defaults to `"compressed"`. */
+  style?: "compressed" | "expanded";
+}
+
+/**
+ * Fetches each of `paths` relative to `base`, concatenates their source in
+ * order, and compiles the result as a single Sass/SCSS string. `fetch()`
+ * resolves both `file://` and `https://` URLs, so this works whether `base`
+ * (typically a module's `import.meta.url`) points at a local theme or one
+ * loaded straight from JSR/HTTPS.
+ *
+ * Themes ship SCSS this way because `StenoTheme.assets` only accepts plain
+ * CSS/JS/binary content - there's no on-disk output step to hand a file path
+ * to, unlike the `beforeBuild` plugin below.
+ *
+ * ```ts
+ * const style = await compileFromUrls(import.meta.url, [
+ *   "./assets/scss/_colors.scss",
+ *   "./assets/scss/_base.scss",
+ * ]);
+ * // theme.assets["style.css"] = style;
+ * ```
+ */
+export async function compileFromUrls(
+  base: string | URL,
+  paths: string[],
+  options: CompileFromUrlsOptions = {},
+): Promise<string> {
+  const sources = await Promise.all(
+    paths.map((path) => fetch(new URL(path, base)).then((r) => r.text())),
+  );
+  return sass.compileString(sources.join("\n"), {
+    style: options.style ?? "compressed",
+  }).css;
+}
 
 /** Options for {@linkcode default | createScssPlugin}. */
 export interface ScssPluginOptions {
