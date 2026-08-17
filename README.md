@@ -49,11 +49,11 @@ plugins:
 
 Steno's plugin hooks (`beforeBuild`, `transformAst`, `transformHtml`,
 `afterPage`, `afterBuild`) don't include a generic asset-transform step - see
-[Writing your own plugin](https://steno.gxbs.dev/docs/plugins). This plugin instead
-runs during `beforeBuild`, before Steno collects the public directory's files,
-and writes plain `.css` straight into it - so the rest of the build pipeline
-(hashing, staging, atomic commit) treats the result as an ordinary public file,
-no different from a hand-written stylesheet.
+[Writing your own plugin](https://steno.gxbs.dev/docs/plugins). This plugin
+instead runs during `beforeBuild`, before Steno collects the public directory's
+files, and writes plain `.css` straight into it - so the rest of the build
+pipeline (hashing, staging, atomic commit) treats the result as an ordinary
+public file, no different from a hand-written stylesheet.
 
 This only compiles a **site's own** stylesheets. A theme that wants to ship Sass
 source (see `@steno/theme-aplos`) compiles it once at theme-load time in its own
