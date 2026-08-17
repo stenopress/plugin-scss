@@ -39,9 +39,7 @@ plugins:
     options:
       srcDir: styles # relative to contentDir, default "styles"
       outDir: assets # relative to publicDir, default "" (public root)
-      entries: [
-        site.scss,
-      ] # default: every top-level *.scss not starting with "_"
+      entries: [site.scss] # default: every top-level *.scss not starting with "_"
       style: expanded # "compressed" (default) or "expanded"
 ```
 
